@@ -33,7 +33,7 @@
           HE Cut Pro <span class="text-sky-400 text-base align-middle">v3</span>
         </h1>
         <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي فقط (بدون خط قص)
+          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي للمقطع مع خط قص عمودي
         </p>
       </div>
       <div class="text-[10px] sm:text-xs text-slate-300 text-left leading-snug">
@@ -86,9 +86,9 @@
         <!-- زاوية التجميع -->
         <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
           زاوية التجميع θ (درجة)
-          <span class="text-[10px] text-slate-400">الزاوية بين القطعتين بعد الجمع</span>
+          <span class="text-[10px] text-slate-400">الزاوية بين القطعتين بعد الجمع (من الأعلى)</span>
         </label>
-        <input id="angle" type="number" min="1" max="45" step="0.5" value="22"
+        <input id="angle" type="number" min="1" max="45" step="0.5" value="30"
                class="col-span-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400" />
 
         <!-- طول القطعة -->
@@ -108,30 +108,32 @@
       <div class="mt-4 flex flex-wrap gap-2">
         <button id="btnReset"
                 class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm border border-slate-600">
-          إعادة الضبط (HEB 180 / 22° / 5m)
+          إعادة الضبط (HEB 180 / 30° / 5m)
         </button>
       </div>
 
       <p class="text-[11px] text-slate-400 mt-3 leading-relaxed">
-        <b>تفسير القص:</b> نعتبر أن القص يتم من <b>قطعتين</b> كما في المخططات عندك:<br>
-        نحسب Δ<sub>total</sub> المطلوبة بين خطّي القص (من الأعلى)، ثم يأخذ كل جناح من كل قطعة
-        نصف القيمة: Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2.  
-        تقيس Δ لكل قطعة على سطح الجناح من طرفه، وتوصل النقطة مع الطرف الآخر بخط مستقيم وتقص.
-        طول القطعة L يبقى كما هو (يُستخدم فقط لحساب الوزن).
+        <b>كيفية تفسير الأرقام:</b><br>
+        نعتبر أن القص يتم من <b>قطعتين</b> كما في المخططات عندك:  
+        نحسب أولاً Δ<sub>total</sub> المطلوبة بين خطّي القص من الأعلى، ثم يأخذ كل جناح من كل قطعة
+        نصف هذه القيمة: Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2.  
+        في الواقع العملي: تقيس Δ لكل قطعة على سطح الجناح من طرفه (Top View)، وتوصل النقطة الجديدة مع الطرف
+        الآخر بخط مستقيم وتمشي ماكينة البلازما على هذا الخط. في الواجهة الأمامية يظهر القص فقط كـ
+        <b>خط عمودي</b> قصير مثل الذي في الرسم على الجناح العلوي.
       </p>
     </section>
 
-    <!-- الشكل الأمامي الاحترافي (بدون خط قص) -->
+    <!-- الشكل الأمامي الاحترافي -->
     <section class="glass rounded-2xl shadow-xl shadow-sky-950/50 border border-slate-700/70 p-4 sm:p-5 flex flex-col">
       <div class="flex items-center justify-between gap-2 mb-4">
         <h2 class="font-semibold text-lg sm:text-xl flex items-center gap-2">
           <span class="inline-flex h-6 w-6 rounded-full bg-emerald-500/20 border border-emerald-400/60 items-center justify-center text-[11px]">
             2
           </span>
-          الوجه الأمامي للمقطع — عرض بصري
+          الوجه الأمامي للمقطع — عرض بصري مع خط القص
         </h2>
         <span class="text-[11px] text-slate-400 hidden sm:inline">
-          جناح علوي، جناح سفلي، عمود (web) — بدون تمثيل لخط القص
+          الجناحان (علوي/سفلي)، العمود (web)، وخط أحمر عمودي يدل على مكان القص في هذا المنظر
         </span>
       </div>
 
@@ -149,8 +151,12 @@
           العمود (web)
         </div>
         <div class="flex items-center gap-2">
+          <span class="inline-block h-3 w-3 rounded-sm bg-red-500"></span>
+          خط القص العمودي على الجناح العلوي (في هذا المنظر فقط)
+        </div>
+        <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full border border-sky-400"></span>
-          الرسم تمثيلي للوجه الأمامي فقط — كل أبعاد القص موجودة بالأرقام في الجدول
+          الرسم تمثيلي للوجه الأمامي — الأبعاد الصحيحة للقص موجودة في الجدول على اليسار
         </div>
       </div>
     </section>
@@ -255,10 +261,10 @@
       // زاوية بالراديان
       const theta = angDeg * Math.PI / 180;
 
-      // Δ الكلية المطلوبة بين خطي القص (لو نظرت من الأعلى): b * tan(θ)
+      // Δ الكلية من الأعلى: b * tan(θ)
       const deltaTotal = b * Math.tan(theta);     // mm
 
-      // القص الفعلي على كل قطعة (نصف القيمة) لأننا نقطّع من قطعتين
+      // القص على كل قطعة (نصف) لأننا نقطّع من قطعتين
       const deltaEach  = deltaTotal / 2;          // mm لكل قطعة
 
       const Lm   = Lmm / 1000;        // طول بالمتر
@@ -287,7 +293,7 @@
           <div>طول القطعة L (قبل وبعد القص):</div>
           <div class="text-right"><b>${Lmm.toFixed(0)} mm</b> ≈ <b>${Lm.toFixed(3)} m</b></div>
 
-          <div>القص الكلّي المطلوب Δ<sub>total</sub> (بين القطعتين):</div>
+          <div>القص الكلّي المطلوب Δ<sub>total</sub> (بين القطعتين من الأعلى):</div>
           <div class="text-right text-amber-300"><b>${deltaTotal.toFixed(1)} mm</b></div>
 
           <div>القص على كل قطعة Δ لكل جناح:</div>
@@ -300,15 +306,14 @@
           <div class="text-right"><b>${weightTxt}</b></div>
         </div>
         <div class="text-[10px] text-slate-400 mt-2">
-          في الورشة: لكل قطعة، علّم نقطة على سطح الجناح من جهة واحدة تبعد
-          <b>${deltaEach.toFixed(1)} mm</b> على طول الجناح، ثم أوصل هذه النقطة مع الطرف الآخر للجناح
-          بخط مستقيم — هذا هو خط القص الحقيقي (من الأعلى). نفّذ نفس القيمة بالعكس على القطعة الثانية
-          لتحصل بعد الجمع على زاوية ≈ θ.
+          في الواقع العملي: لكل قطعة، علّم نقطة على سطح الجناح من طرفه تبعد
+          <b>${deltaEach.toFixed(1)} mm</b> على طول الجناح (Top View)، ثم أوصل هذه النقطة مع الطرف الآخر للجناح
+          بخط مستقيم — هذا هو خط القص الحقيقي. في الواجهة الأمامية يظهر هذا القطع كخط عمودي قصير كما في الرسم.
         </div>
       `;
     }
 
-    // رسم وجه أمامي احترافي لمقطع H (بدون خط قص)
+    // رسم وجه أمامي احترافي لمقطع H مع خط قص عمودي على الجناح العلوي
     function renderFront({b, sz, s, angDeg}) {
       const widthPx  = 320;
       const heightPx = 260;
@@ -333,6 +338,9 @@
       const halfFlangeSpan = 70 + (b - 180) * 0.25;
       const flangeLeftInner  = midX - halfFlangeSpan;
       const flangeRightInner = midX + halfFlangeSpan;
+
+      // موضع خط القص الرأسي (قريب من نهاية الجناح اليمنى)
+      const cutX = flangeRightInner - 4;
 
       const svg = `
         <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}">
@@ -372,6 +380,11 @@
                   fill="url(#webGrad)" stroke="#94a3b8" stroke-width="1" />
           </g>
 
+          <!-- خط القص العمودي على الجناح العلوي (يمثل مكان نهاية الجناح بعد القص من الأعلى) -->
+          <line x1="${cutX}" y1="${topFlangeY}"
+                x2="${cutX}" y2="${topFlangeY + flangeTh}"
+                stroke="#f97373" stroke-width="4" stroke-linecap="round" />
+
           <!-- عنوان المقطع -->
           <text x="${midX}" y="${topFlangeY - 12}"
                 font-size="13" fill="#e5e7eb" text-anchor="middle" font-weight="600">
@@ -385,7 +398,7 @@
           </text>
 
           <text x="${midX}" y="${botFlangeY + 34}" font-size="10" fill="#cbd5f5" text-anchor="middle">
-            منظر أمامي رمزي لمقطع H (بدون خط قص)
+            خط القص الأحمر يمثل مكان الفتحة في الجناح العلوي في هذا المنظر الأمامي
           </text>
         </svg>
       `;
@@ -401,7 +414,7 @@
       $series.value = 'HEB';
       populateSizes();
       $size.value = '180';
-      $angle.value = 22;
+      $angle.value = 30;
       $length.value = 5000;
       calc();
     });
