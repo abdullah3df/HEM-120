@@ -33,7 +33,7 @@
           HE Cut Pro <span class="text-sky-400 text-base align-middle">v3</span>
         </h1>
         <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي فقط
+          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي فقط (بدون خط قص)
         </p>
       </div>
       <div class="text-[10px] sm:text-xs text-slate-300 text-left leading-snug">
@@ -113,15 +113,15 @@
       </div>
 
       <p class="text-[11px] text-slate-400 mt-3 leading-relaxed">
-        <b>تفسير القص:</b> نعتبر أن القص يتم من <b>قطعتين</b> مثل المخططات التي أرسلتها:<br>
-        يتم حساب Δ<sub>total</sub> المطلوبة بين خطّي القص، ثم يأخذ كل جناح من كل قطعة
+        <b>تفسير القص:</b> نعتبر أن القص يتم من <b>قطعتين</b> كما في المخططات عندك:<br>
+        نحسب Δ<sub>total</sub> المطلوبة بين خطّي القص (من الأعلى)، ثم يأخذ كل جناح من كل قطعة
         نصف القيمة: Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2.  
-        تقيس Δ لكل قطعة على حافة الجناح على طول القطعة، وتوصلها مع الطرف الآخر بخط مستقيم وتقص.
-        طول القطعة L يبقى كما هو.
+        تقيس Δ لكل قطعة على سطح الجناح من طرفه، وتوصل النقطة مع الطرف الآخر بخط مستقيم وتقص.
+        طول القطعة L يبقى كما هو (يُستخدم فقط لحساب الوزن).
       </p>
     </section>
 
-    <!-- الشكل الأمامي الاحترافي -->
+    <!-- الشكل الأمامي الاحترافي (بدون خط قص) -->
     <section class="glass rounded-2xl shadow-xl shadow-sky-950/50 border border-slate-700/70 p-4 sm:p-5 flex flex-col">
       <div class="flex items-center justify-between gap-2 mb-4">
         <h2 class="font-semibold text-lg sm:text-xl flex items-center gap-2">
@@ -131,7 +131,7 @@
           الوجه الأمامي للمقطع — عرض بصري
         </h2>
         <span class="text-[11px] text-slate-400 hidden sm:inline">
-          جناح علوي، جناح سفلي، عمود (web)، وخط قص أحمر بزاوية θ (شكل توضيحي)
+          جناح علوي، جناح سفلي، عمود (web) — بدون تمثيل لخط القص
         </span>
       </div>
 
@@ -149,12 +149,8 @@
           العمود (web)
         </div>
         <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-sm bg-red-500"></span>
-          خط القص على الجناح العلوي (رمزي)
-        </div>
-        <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full border border-sky-400"></span>
-          الرسم تمثيلي، الأبعاد العددية مكتوبة في الجدول على اليسار
+          الرسم تمثيلي للوجه الأمامي فقط — كل أبعاد القص موجودة بالأرقام في الجدول
         </div>
       </div>
     </section>
@@ -304,14 +300,15 @@
           <div class="text-right"><b>${weightTxt}</b></div>
         </div>
         <div class="text-[10px] text-slate-400 mt-2">
-          طريقة الاستخدام في الورشة: علّم نقطة على حافة الجناح من جهة واحدة، تبعد Δ لكل قطعة (mm) على طول
-          الجناح، ثم أوصل هذه النقطة مع الطرف الآخر للجناح بخط مستقيم — هذا هو خط القص. نفّذ نفس القيمة
-          بالعكس على القطعة الثانية. بعد الجمع، تحصل على زاوية ≈ θ بين القطعتين. طول القطعة لا يتغيّر.
+          في الورشة: لكل قطعة، علّم نقطة على سطح الجناح من جهة واحدة تبعد
+          <b>${deltaEach.toFixed(1)} mm</b> على طول الجناح، ثم أوصل هذه النقطة مع الطرف الآخر للجناح
+          بخط مستقيم — هذا هو خط القص الحقيقي (من الأعلى). نفّذ نفس القيمة بالعكس على القطعة الثانية
+          لتحصل بعد الجمع على زاوية ≈ θ.
         </div>
       `;
     }
 
-    // رسم وجه أمامي احترافي لمقطع H مع خط قص رمزي على الجناح العلوي
+    // رسم وجه أمامي احترافي لمقطع H (بدون خط قص)
     function renderFront({b, sz, s, angDeg}) {
       const widthPx  = 320;
       const heightPx = 260;
@@ -336,18 +333,6 @@
       const halfFlangeSpan = 70 + (b - 180) * 0.25;
       const flangeLeftInner  = midX - halfFlangeSpan;
       const flangeRightInner = midX + halfFlangeSpan;
-
-      const baseLength = 90;
-      const extra = (angDeg / 45) * 20;
-      const cutLength = baseLength + extra;
-      const rad = angDeg * Math.PI / 180;
-      const dx = cutLength * Math.cos(rad);
-      const dy = cutLength * Math.sin(rad);
-
-      const cutX1 = flangeRightInner;
-      const cutY1 = topFlangeY;
-      const cutX2 = flangeRightInner - dx;
-      const cutY2 = topFlangeY + dy;
 
       const svg = `
         <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}">
@@ -387,31 +372,20 @@
                   fill="url(#webGrad)" stroke="#94a3b8" stroke-width="1" />
           </g>
 
-          <!-- خط القص الأحمر (رمزي فقط) -->
-          <line x1="${cutX1}" y1="${cutY1}"
-                x2="${cutX2}" y2="${cutY2}"
-                stroke="#f97373" stroke-width="3" />
-
-          <polygon points="
-              ${cutX2},${cutY2}
-              ${cutX2 - 6},${cutY2 - 4}
-              ${cutX2 - 6},${cutY2 + 4}
-            " fill="#f97373" />
-
-          <!-- زاوية القص -->
-          <text x="${cutX2 - 4}" y="${cutY2 + 16}"
-                font-size="11" fill="#fda4af" font-weight="600" text-anchor="end">
-            θ ≈ ${angDeg.toFixed(1)}°
-          </text>
-
           <!-- عنوان المقطع -->
           <text x="${midX}" y="${topFlangeY - 12}"
                 font-size="13" fill="#e5e7eb" text-anchor="middle" font-weight="600">
             ${s} ${sz}
           </text>
 
-          <text x="${midX}" y="${botFlangeY + 14}" font-size="10" fill="#cbd5f5" text-anchor="middle">
-            منظر أمامي رمزي لمقطع H
+          <!-- نص بسيط للزاوية تحت المقطع -->
+          <text x="${midX}" y="${botFlangeY + 18}"
+                font-size="11" fill="#fda4af" text-anchor="middle" font-weight="600">
+            θ = ${angDeg.toFixed(1)}°
+          </text>
+
+          <text x="${midX}" y="${botFlangeY + 34}" font-size="10" fill="#cbd5f5" text-anchor="middle">
+            منظر أمامي رمزي لمقطع H (بدون خط قص)
           </text>
         </svg>
       `;
