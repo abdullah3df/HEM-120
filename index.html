@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HE Cut Pro v2 — حاسبة قص مقاطع H</title>
+  <title>HE Cut Pro v3 — قص الجناح + وزن القطعة</title>
 
   <!-- Tailwind عبر CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,6 @@
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
     html,body{font-family:Cairo,system-ui,ui-sans-serif;}
     svg,svg *{user-select:none}
-    /* خلفية احترافية */
     body{
       background:
         radial-gradient(circle at top left, rgba(56,189,248,0.2), transparent 55%),
@@ -22,10 +21,6 @@
       background: radial-gradient(circle at top, rgba(148,163,184,0.18), rgba(15,23,42,0.9));
       backdrop-filter: blur(18px);
     }
-    .metal {
-      fill: url(#metalGrad);
-      stroke: #94a3b8;
-    }
   </style>
 </head>
 <body class="text-slate-100">
@@ -35,16 +30,17 @@
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
       <div>
         <h1 class="text-xl sm:text-2xl font-bold tracking-tight">
-          HE Cut Pro <span class="text-sky-400 text-base align-middle">v2</span>
+          HE Cut Pro <span class="text-sky-400 text-base align-middle">v3</span>
         </h1>
         <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-          حاسبة قص مقاطع HEA / HEB / HEM — قص الجناح العلوي فقط (الطول ثابت للحسابات والوزن)
+          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي فقط
         </p>
       </div>
       <div class="text-[10px] sm:text-xs text-slate-300 text-left leading-snug">
-        Δ = b · tan(θ)<br>
-        الطول <span class="font-semibold">L</span> لا يتغيّر مع القص<br>
-        القص على الجناح العلوي فقط
+        القص من قطعتين:<br>
+        Δ<sub>total</sub> = b · tan(θ)<br>
+        Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2<br>
+        طول القطعة L ثابت، القص لا يغيّر الطول
       </div>
     </div>
   </header>
@@ -52,17 +48,17 @@
   <!-- محتوى -->
   <main class="max-w-6xl mx-auto px-4 py-6 sm:py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] gap-6">
 
-    <!-- لوحة الإعدادات -->
+    <!-- لوحة الإعدادات والنتائج -->
     <section class="glass rounded-2xl shadow-xl shadow-sky-950/50 border border-slate-700/70 p-4 sm:p-5">
       <div class="flex items-center justify-between gap-2 mb-4">
         <h2 class="font-semibold text-lg sm:text-xl flex items-center gap-2">
           <span class="inline-flex h-6 w-6 rounded-full bg-sky-500/20 border border-sky-400/50 items-center justify-center text-[11px]">
             1
           </span>
-          الإعدادات &amp; الحساب
+          الإعدادات &amp; الحساب (قص + وزن)
         </h2>
         <span class="text-[11px] text-slate-400 hidden sm:inline">
-          اختر المقطع، الزاوية، والطول لمعرفة Δ والوزن
+          اختر المقطع، الزاوية، والطول — تحصل على مقدار القص لكل قطعة والوزن
         </span>
       </div>
 
@@ -82,15 +78,15 @@
         <!-- مقاس -->
         <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
           المقاس (Size)
-          <span class="text-[10px] text-slate-400">الارتفاع الاسمي للمقطع</span>
+          <span class="text-[10px] text-slate-400">HE 100 … HE 400</span>
         </label>
         <select id="size"
                 class="col-span-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400"></select>
 
-        <!-- زاوية -->
+        <!-- زاوية التجميع -->
         <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
           زاوية التجميع θ (درجة)
-          <span class="text-[10px] text-slate-400">من 1° إلى 45°</span>
+          <span class="text-[10px] text-slate-400">الزاوية بين القطعتين بعد الجمع</span>
         </label>
         <input id="angle" type="number" min="1" max="45" step="0.5" value="22"
                class="col-span-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400" />
@@ -98,37 +94,30 @@
         <!-- طول القطعة -->
         <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
           طول القطعة L (mm)
-          <span class="text-[10px] text-slate-400">لوزن القطعة فقط — لا يتغيّر مع القص</span>
+          <span class="text-[10px] text-slate-400">مثلاً 5000 = 5 متر (لوزن القطعة)</span>
         </label>
         <input id="length" type="number" min="100" step="10" value="5000"
                class="col-span-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400" />
-
-        <!-- وزن المتر -->
-        <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
-          وزن المتر الواحد (kg/m)
-          <span class="text-[10px] text-slate-400">اختياري — من كتالوج الحديد</span>
-        </label>
-        <input id="wpm" type="number" min="0" step="0.1" value=""
-               placeholder="مثلاً 56.2 لـ HEB 180"
-               class="col-span-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-400" />
       </div>
 
       <!-- نتائج نصية -->
       <div class="mt-5 rounded-xl border border-slate-700/80 bg-slate-900/70 px-3.5 py-3 text-sm" id="readout">
-        <!-- يُملأ بالـ JS -->
+        <!-- JS هنا -->
       </div>
 
       <div class="mt-4 flex flex-wrap gap-2">
         <button id="btnReset"
                 class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm border border-slate-600">
-          إعادة الضبط (HEB 180 / 22° / 5000mm)
+          إعادة الضبط (HEB 180 / 22° / 5m)
         </button>
       </div>
 
       <p class="text-[11px] text-slate-400 mt-3 leading-relaxed">
-        ملاحظة: القص يتم على امتداد <b>الجناح العلوي فقط</b>. طول القطعة <b>L</b> يبقى ثابتًا
-        قبل وبعد القص. قيمة Δ هي فرق الموضع بين طرفي خط القص على الجناح، وتُستخدم لقياسك
-        على الحديد وليس كخصم من طول القطعة.
+        <b>تفسير القص:</b> نعتبر أن القص يتم من <b>قطعتين</b> مثل المخططات التي أرسلتها:<br>
+        يتم حساب Δ<sub>total</sub> المطلوبة بين خطّي القص، ثم يأخذ كل جناح من كل قطعة
+        نصف القيمة: Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2.  
+        تقيس Δ لكل قطعة على حافة الجناح على طول القطعة، وتوصلها مع الطرف الآخر بخط مستقيم وتقص.
+        طول القطعة L يبقى كما هو.
       </p>
     </section>
 
@@ -142,7 +131,7 @@
           الوجه الأمامي للمقطع — عرض بصري
         </h2>
         <span class="text-[11px] text-slate-400 hidden sm:inline">
-          جناح علوي، جناح سفلي، عمود (web)، وخط قص أحمر بزاوية θ
+          جناح علوي، جناح سفلي، عمود (web)، وخط قص أحمر بزاوية θ (شكل توضيحي)
         </span>
       </div>
 
@@ -161,11 +150,11 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-sm bg-red-500"></span>
-          خط القص على الجناح العلوي
+          خط القص على الجناح العلوي (رمزي)
         </div>
         <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full border border-sky-400"></span>
-          تمثيل رمزي، ليس 1:1 لكن قريب للواقع بصريًا
+          الرسم تمثيلي، الأبعاد العددية مكتوبة في الجدول على اليسار
         </div>
       </div>
     </section>
@@ -173,31 +162,78 @@
   </main>
 
   <footer class="max-w-6xl mx-auto px-4 pb-6 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
-    <span>HE Cut Pro v2 — ملف واحد (index.html)</span>
-    <span>للعمل الفعلي: اعتمد دائمًا كتالوج المقاطع + تعليمات الورشة.</span>
+    <span>HE Cut Pro v3 — قص الجناح + وزن (index.html)</span>
+    <span>للتنفيذ العملي: اعتمد دائمًا كتالوج المقاطع وتعليمات الورشة.</span>
   </footer>
 
   <!-- المنطق -->
   <script>
-    // جدول مبسط لعرض الجناح b (mm) لبعض المقاسات
-    const HE_TABLE = {
-      HEA: {100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,400:300},
-      HEB: {100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:300,340:300,360:300,400:300},
-      HEM: {100:120,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:260,300:300,320:300,340:300,360:300,400:300}
+    // بيانات تقريبية: عرض الجناح b (mm) + وزن المتر kg/m
+    const HE_DATA = {
+      HEA: {
+        100:{b:100, kgpm:17.0},
+        120:{b:120, kgpm:20.3},
+        140:{b:140, kgpm:25.1},
+        160:{b:160, kgpm:31.0},
+        180:{b:180, kgpm:36.2},
+        200:{b:200, kgpm:43.1},
+        220:{b:220, kgpm:51.5},
+        240:{b:240, kgpm:61.5},
+        260:{b:260, kgpm:69.5},
+        280:{b:280, kgpm:77.8},
+        300:{b:300, kgpm:90.0},
+        320:{b:300, kgpm:99.5},
+        340:{b:300, kgpm:107},
+        360:{b:300, kgpm:114},
+        400:{b:300, kgpm:127}
+      },
+      HEB: {
+        100:{b:100, kgpm:20.8},
+        120:{b:120, kgpm:27.2},
+        140:{b:140, kgpm:34.4},
+        160:{b:160, kgpm:43.4},
+        180:{b:180, kgpm:52.2},
+        200:{b:200, kgpm:62.5},
+        220:{b:220, kgpm:72.8},
+        240:{b:240, kgpm:84.8},
+        260:{b:260, kgpm:94.8},
+        280:{b:280, kgpm:105},
+        300:{b:300, kgpm:119},
+        320:{b:300, kgpm:129},
+        340:{b:300, kgpm:137},
+        360:{b:300, kgpm:145},
+        400:{b:300, kgpm:158}
+      },
+      HEM: {
+        100:{b:120, kgpm:42.6},
+        120:{b:120, kgpm:53.1},
+        140:{b:140, kgpm:64.4},
+        160:{b:160, kgpm:77.6},
+        180:{b:180, kgpm:90.6},
+        200:{b:200, kgpm:105},
+        220:{b:220, kgpm:120},
+        240:{b:240, kgpm:160},
+        260:{b:260, kgpm:176},
+        280:{b:260, kgpm:192},
+        300:{b:300, kgpm:242},
+        320:{b:300, kgpm:250},
+        340:{b:300, kgpm:253},
+        360:{b:300, kgpm:255},
+        400:{b:300, kgpm:261}
+      }
     };
 
     const $series = document.getElementById('series');
     const $size   = document.getElementById('size');
     const $angle  = document.getElementById('angle');
     const $length = document.getElementById('length');
-    const $wpm    = document.getElementById('wpm');
     const $readout= document.getElementById('readout');
     const $frontWrapper = document.getElementById('frontWrapper');
     const $btnReset = document.getElementById('btnReset');
 
     function populateSizes() {
       const s = $series.value;
-      const sizes = Object.keys(HE_TABLE[s]).map(Number).sort((a,b)=>a-b);
+      const sizes = Object.keys(HE_DATA[s]).map(Number).sort((a,b)=>a-b);
       $size.innerHTML = sizes
         .map(v => `<option value="${v}" ${v===180?'selected':''}>${v}</option>`)
         .join('');
@@ -207,84 +243,86 @@
       const s   = $series.value;
       const sz  = Number($size.value);
       let angDeg= Number($angle.value);
-      let L0    = Number($length.value);
-      let wpm   = Number($wpm.value);
+      let Lmm   = Number($length.value);
 
       if (angDeg < 1)  angDeg = 1;
       if (angDeg > 45) angDeg = 45;
       $angle.value = angDeg;
 
-      if (!L0 || L0 < 100) L0 = 100;
-      $length.value = L0;
+      if (!Lmm || Lmm < 100) Lmm = 100;
+      $length.value = Lmm;
 
-      if (!wpm || wpm < 0) wpm = 0;
+      const data = HE_DATA[s][sz] || {b:180, kgpm:0};
+      const b    = data.b;
+      const kgpm = data.kgpm;
 
-      const b = HE_TABLE[s][sz] ?? 180; // عرض الجناح
+      // زاوية بالراديان
       const theta = angDeg * Math.PI / 180;
-      const delta = b * Math.tan(theta); // Δ كم فرق موضع على الجناح (mm)
 
-      // وزن تقريبي إذا أُدخل وزن المتر
-      let weightText = '';
-      if (wpm > 0) {
-        const totalKg = (L0 / 1000) * wpm;
-        weightText = `
-          <div class="mt-1">
-            <div>وزن المتر الواحد: <b>${wpm.toFixed(2)} kg/m</b></div>
-            <div>الوزن التقريبي للقطعة بطول ${L0.toFixed(0)} mm:
-              <b>${totalKg.toFixed(2)} kg</b>
-            </div>
-            <div class="text-[10px] opacity-70 mt-1">
-              النقص الناتج عن مثلث القص في الجناح صغير جداً ويمكن إهماله في الوزن الفعلي.
-            </div>
-          </div>
-        `;
-      }
+      // Δ الكلية المطلوبة بين خطي القص (لو نظرت من الأعلى): b * tan(θ)
+      const deltaTotal = b * Math.tan(theta);     // mm
 
-      renderReadout({s, sz, b, angDeg, L0, delta, weightText});
-      renderFront({b, sz, angDeg});
+      // القص الفعلي على كل قطعة (نصف القيمة) لأننا نقطّع من قطعتين
+      const deltaEach  = deltaTotal / 2;          // mm لكل قطعة
+
+      const Lm   = Lmm / 1000;        // طول بالمتر
+      const totalKg = kgpm * Lm;      // وزن تقريبي
+
+      renderReadout({s, sz, b, kgpm, Lmm, Lm, totalKg, angDeg, deltaTotal, deltaEach});
+      renderFront({b, sz, s, angDeg});
     }
 
-    function renderReadout({s, sz, b, angDeg, L0, delta, weightText}) {
+    function renderReadout({s, sz, b, kgpm, Lmm, Lm, totalKg, angDeg, deltaTotal, deltaEach}) {
+      const kgpmText  = kgpm > 0 ? kgpm.toFixed(1) + " kg/m" : "غير متوفر في الجدول";
+      const weightTxt = kgpm > 0 ? totalKg.toFixed(2) + " kg" : "—";
+
       $readout.innerHTML = `
-        <div class="text-sky-300 text-xs mb-1">نتائج القص (لكل قطعة)</div>
+        <div class="text-sky-300 text-xs mb-1">معلومات المقطع والقص والوزن</div>
         <div class="grid grid-cols-2 gap-x-3 gap-y-1">
           <div>البروفايل:</div>
           <div class="text-right"><b>${s} ${sz}</b></div>
 
-          <div>عرض الجناح b:</div>
+          <div>عرض الجناح b (تقريبي):</div>
           <div class="text-right"><b>${b.toFixed(0)} mm</b></div>
 
-          <div>زاوية التجميع θ:</div>
+          <div>زاوية التجميع θ بين القطعتين:</div>
           <div class="text-right"><b>${angDeg.toFixed(1)}°</b></div>
 
-          <div>طول القطعة L (ثابت):</div>
-          <div class="text-right"><b>${L0.toFixed(1)} mm</b></div>
+          <div>طول القطعة L (قبل وبعد القص):</div>
+          <div class="text-right"><b>${Lmm.toFixed(0)} mm</b> ≈ <b>${Lm.toFixed(3)} m</b></div>
 
-          <div>مقدار القص Δ على الجناح:</div>
-          <div class="text-right"><b>${delta.toFixed(1)} mm</b></div>
+          <div>القص الكلّي المطلوب Δ<sub>total</sub> (بين القطعتين):</div>
+          <div class="text-right text-amber-300"><b>${deltaTotal.toFixed(1)} mm</b></div>
+
+          <div>القص على كل قطعة Δ لكل جناح:</div>
+          <div class="text-right text-emerald-300"><b>${deltaEach.toFixed(1)} mm</b></div>
+
+          <div>وزن المتر الواحد من الجدول:</div>
+          <div class="text-right"><b>${kgpmText}</b></div>
+
+          <div>وزن القطعة التقريبي:</div>
+          <div class="text-right"><b>${weightTxt}</b></div>
         </div>
         <div class="text-[10px] text-slate-400 mt-2">
-          Δ هي المسافة الأفقية بين طرفي خط القص على الجناح العلوي. تستخدمها لتعليم بداية ونهاية القص
-          على سطح الجناح، وليست نقصانًا في طول القطعة.
+          طريقة الاستخدام في الورشة: علّم نقطة على حافة الجناح من جهة واحدة، تبعد Δ لكل قطعة (mm) على طول
+          الجناح، ثم أوصل هذه النقطة مع الطرف الآخر للجناح بخط مستقيم — هذا هو خط القص. نفّذ نفس القيمة
+          بالعكس على القطعة الثانية. بعد الجمع، تحصل على زاوية ≈ θ بين القطعتين. طول القطعة لا يتغيّر.
         </div>
-        ${weightText}
       `;
     }
 
-    // رسم وجه أمامي أكثر احترافية لمقطع H مع خط قص على الجناح العلوي الأيمن
-    function renderFront({b, sz, angDeg}) {
+    // رسم وجه أمامي احترافي لمقطع H مع خط قص رمزي على الجناح العلوي
+    function renderFront({b, sz, s, angDeg}) {
       const widthPx  = 320;
       const heightPx = 260;
-      const paddingX = 40;
       const paddingY = 30;
 
       const midX   = widthPx / 2;
       const topY   = paddingY;
       const botY   = heightPx - paddingY;
 
-      // ارتفاع المقطع نسبي حسب المقاس (sz)
-      const nominalH = sz; // مثال: 180, 200 ...
-      const normH    = 200; // ارتفاع رسم قياسي
+      const nominalH = sz;
+      const normH    = 200;
       const scaleH   = Math.min(1.1, Math.max(0.7, nominalH / 220));
       const profileHeight = normH * scaleH;
 
@@ -292,16 +330,13 @@
       const topFlangeY = centerY - profileHeight / 2;
       const botFlangeY = centerY + profileHeight / 2;
 
-      // سماكة الجناح والعمود (تقريبية)
       const flangeTh = Math.max(18, Math.min(32, profileHeight * 0.18));
       const webTh    = Math.max(12, Math.min(26, profileHeight * 0.12));
 
-      // نصف عرض الجناح في الرسم — يزيد مع b
       const halfFlangeSpan = 70 + (b - 180) * 0.25;
       const flangeLeftInner  = midX - halfFlangeSpan;
       const flangeRightInner = midX + halfFlangeSpan;
 
-      // خط القص: ميل أكثر وضوحاً حسب الزاوية
       const baseLength = 90;
       const extra = (angDeg / 45) * 20;
       const cutLength = baseLength + extra;
@@ -332,11 +367,6 @@
             </filter>
           </defs>
 
-          <!-- خلفية خفيفة -->
-          <rect x="0" y="0" width="${widthPx}" height="${heightPx}"
-                fill="url(#bgGrad)" fill-opacity="0" />
-
-          <!-- شكل المقطع (مع ظل) -->
           <g filter="url(#shadow)">
             <!-- الجناح العلوي -->
             <rect x="${flangeLeftInner}" y="${topFlangeY}"
@@ -357,12 +387,11 @@
                   fill="url(#webGrad)" stroke="#94a3b8" stroke-width="1" />
           </g>
 
-          <!-- خط القص على الجناح العلوي الأيمن -->
+          <!-- خط القص الأحمر (رمزي فقط) -->
           <line x1="${cutX1}" y1="${cutY1}"
                 x2="${cutX2}" y2="${cutY2}"
                 stroke="#f97373" stroke-width="3" />
 
-          <!-- رأس سهم نهاية القص -->
           <polygon points="
               ${cutX2},${cutY2}
               ${cutX2 - 6},${cutY2 - 4}
@@ -378,10 +407,9 @@
           <!-- عنوان المقطع -->
           <text x="${midX}" y="${topFlangeY - 12}"
                 font-size="13" fill="#e5e7eb" text-anchor="middle" font-weight="600">
-            مقطع ${sz} ${s}
+            ${s} ${sz}
           </text>
 
-          <!-- تسميات بسيطة -->
           <text x="${midX}" y="${botFlangeY + 14}" font-size="10" fill="#cbd5f5" text-anchor="middle">
             منظر أمامي رمزي لمقطع H
           </text>
@@ -391,7 +419,7 @@
     }
 
     // أحداث
-    [$series, $size, $angle, $length, $wpm].forEach(el => {
+    [$series, $size, $angle, $length].forEach(el => {
       el.addEventListener('input', calc);
     });
 
@@ -401,7 +429,6 @@
       $size.value = '180';
       $angle.value = 22;
       $length.value = 5000;
-      $wpm.value = "";
       calc();
     });
 
