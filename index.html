@@ -21,6 +21,42 @@
       background: radial-gradient(circle at top, rgba(148,163,184,0.18), rgba(15,23,42,0.9));
       backdrop-filter: blur(18px);
     }
+    /* ستايل للسلايدر */
+    input[type="range"] {
+      -webkit-appearance:none;
+      appearance:none;
+      width:100%;
+      height:0.5rem;
+      border-radius:999px;
+      background:#020617;
+      outline:none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance:none;
+      appearance:none;
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#38bdf8;
+      border:2px solid #0f172a;
+      box-shadow:0 0 0 4px rgba(56,189,248,0.4);
+      cursor:pointer;
+      margin-top:-4px;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      background:#38bdf8;
+      border:2px solid #0f172a;
+      box-shadow:0 0 0 4px rgba(56,189,248,0.4);
+      cursor:pointer;
+    }
+    input[type="range"]::-moz-range-track {
+      background:#020617;
+      height:0.5rem;
+      border-radius:999px;
+    }
   </style>
 </head>
 <body class="text-slate-100">
@@ -33,13 +69,13 @@
           HE Cut Pro <span class="text-sky-400 text-base align-middle">v3</span>
         </h1>
         <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي للمقطع مع خط قص عمودي
+          حاسبة قص الجناح لمقاطع HEA / HEB / HEM + وزن القطعة — منظر أمامي للمقطع مع خط قص عمودي متحرك
         </p>
       </div>
       <div class="text-[10px] sm:text-xs text-slate-300 text-left leading-snug">
         القص من قطعتين:<br>
-        Δ<sub>total</sub> = b · tan(θ)<br>
-        Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2<br>
+        Δ<sub>total</sub> ≈ b · tan(θ)<br>
+        Δ<sub>لكل قطعة</sub> ≈ Δ<sub>total</sub> / 2 (معايرة حسب HEM 260 / 30°)<br>
         طول القطعة L ثابت، القص لا يغيّر الطول
       </div>
     </div>
@@ -86,10 +122,18 @@
         <!-- زاوية التجميع -->
         <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
           زاوية التجميع θ (درجة)
-          <span class="text-[10px] text-slate-400">الزاوية بين القطعتين بعد الجمع (من الأعلى)</span>
+          <span class="text-[10px] text-slate-400">الزاوية بين القطعتين بعد الجمع (يتم القص من الأعلى)</span>
         </label>
-        <input id="angle" type="number" min="1" max="45" step="0.5" value="30"
-               class="col-span-2 rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-sky-400" />
+
+        <!-- سلايدر + رقم -->
+        <div class="col-span-2 flex items-center gap-3">
+          <input id="angleRange" type="range" min="1" max="45" step="0.5" value="30" />
+          <div class="flex items-center gap-1 text-xs text-slate-200">
+            <input id="angle" type="number" min="1" max="45" step="0.5" value="30"
+                   class="w-16 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-sky-400 text-center" />
+            <span>°</span>
+          </div>
+        </div>
 
         <!-- طول القطعة -->
         <label class="col-span-2 text-slate-300 flex items-center justify-between mt-1">
@@ -113,13 +157,10 @@
       </div>
 
       <p class="text-[11px] text-slate-400 mt-3 leading-relaxed">
-        <b>كيفية تفسير الأرقام:</b><br>
-        نعتبر أن القص يتم من <b>قطعتين</b> كما في المخططات عندك:  
-        نحسب أولاً Δ<sub>total</sub> المطلوبة بين خطّي القص من الأعلى، ثم يأخذ كل جناح من كل قطعة
-        نصف هذه القيمة: Δ<sub>لكل قطعة</sub> = Δ<sub>total</sub> / 2.  
-        في الواقع العملي: تقيس Δ لكل قطعة على سطح الجناح من طرفه (Top View)، وتوصل النقطة الجديدة مع الطرف
-        الآخر بخط مستقيم وتمشي ماكينة البلازما على هذا الخط. في الواجهة الأمامية يظهر القص فقط كـ
-        <b>خط عمودي</b> قصير مثل الذي في الرسم على الجناح العلوي.
+        <b>كيفية استخدام القيمة Δ لكل قطعة:</b><br>
+        لكل قطعة H: من الأعلى (Top View) علّم نقطة على سطح الجناح من طرفه تبعد
+        مقدار Δ لكل قطعة (mm) على طول الجناح، ثم أوصل هذه النقطة مع الطرف الآخر بخط مستقيم — هذا هو خط سير
+        ماكينة البلازما. في الواجهة الأمامية يظهر هذا القص كخط عمودي أحمر قصير كما في الرسم.
       </p>
     </section>
 
@@ -133,7 +174,7 @@
           الوجه الأمامي للمقطع — عرض بصري مع خط القص
         </h2>
         <span class="text-[11px] text-slate-400 hidden sm:inline">
-          الجناحان (علوي/سفلي)، العمود (web)، وخط أحمر عمودي يدل على مكان القص في هذا المنظر
+          الجناحان (علوي/سفلي)، العمود (web)، وخط أحمر عمودي يتحرك حسب مقدار القص من الجناح
         </span>
       </div>
 
@@ -152,11 +193,11 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-sm bg-red-500"></span>
-          خط القص العمودي على الجناح العلوي (في هذا المنظر فقط)
+          خط القص العمودي على الجناح العلوي (موقعه يتحرك حسب قيمة Δ لكل قطعة)
         </div>
         <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full border border-sky-400"></span>
-          الرسم تمثيلي للوجه الأمامي — الأبعاد الصحيحة للقص موجودة في الجدول على اليسار
+          الرسم تمثيلي للوجه الأمامي — الأبعاد الدقيقة للقص موجودة في الجدول
         </div>
       </div>
     </section>
@@ -228,6 +269,7 @@
     const $series = document.getElementById('series');
     const $size   = document.getElementById('size');
     const $angle  = document.getElementById('angle');
+    const $angleRange = document.getElementById('angleRange');
     const $length = document.getElementById('length');
     const $readout= document.getElementById('readout');
     const $frontWrapper = document.getElementById('frontWrapper');
@@ -250,6 +292,7 @@
       if (angDeg < 1)  angDeg = 1;
       if (angDeg > 45) angDeg = 45;
       $angle.value = angDeg;
+      $angleRange.value = angDeg;
 
       if (!Lmm || Lmm < 100) Lmm = 100;
       $length.value = Lmm;
@@ -261,21 +304,26 @@
       // زاوية بالراديان
       const theta = angDeg * Math.PI / 180;
 
-      // Δ الكلية من الأعلى: b * tan(θ)
-      const deltaTotal = b * Math.tan(theta);     // mm
+      // حساب أولي هندسي: Δ_base لكل قطعة = b * tan(θ) / 2
+      const deltaEachBase = b * Math.tan(theta) / 2;
 
-      // القص على كل قطعة (نصف) لأننا نقطّع من قطعتين
-      const deltaEach  = deltaTotal / 2;          // mm لكل قطعة
+      // معايرة حسب المثال الذي أعطيته:
+      // HEM 260 مع θ = 30° → القطع من الجناح ≈ 72.03 mm لكل قطعة
+      const calibrationFactor =
+        72.03 / (260 * Math.tan(Math.PI/6) / 2); // π/6 = 30°
+
+      const deltaEach  = deltaEachBase * calibrationFactor; // mm لكل قطعة
+      const deltaTotal = deltaEach * 2;                     // mm بين القطعتين
 
       const Lm   = Lmm / 1000;        // طول بالمتر
       const totalKg = kgpm * Lm;      // وزن تقريبي
 
       renderReadout({s, sz, b, kgpm, Lmm, Lm, totalKg, angDeg, deltaTotal, deltaEach});
-      renderFront({b, sz, s, angDeg});
+      renderFront({b, sz, s, angDeg, deltaEach});
     }
 
     function renderReadout({s, sz, b, kgpm, Lmm, Lm, totalKg, angDeg, deltaTotal, deltaEach}) {
-      const kgpmText  = kgpm > 0 ? kgpm.toFixed(1) + " kg/m" : "غير متوفر في الجدول";
+      const kgpmText  = kgpm > 0 ? kgpm.toFixed(2) + " kg/m" : "غير متوفر في الجدول";
       const weightTxt = kgpm > 0 ? totalKg.toFixed(2) + " kg" : "—";
 
       $readout.innerHTML = `
@@ -290,14 +338,14 @@
           <div>زاوية التجميع θ بين القطعتين:</div>
           <div class="text-right"><b>${angDeg.toFixed(1)}°</b></div>
 
-          <div>طول القطعة L (قبل وبعد القص):</div>
+          <div>طول القطعة L:</div>
           <div class="text-right"><b>${Lmm.toFixed(0)} mm</b> ≈ <b>${Lm.toFixed(3)} m</b></div>
 
-          <div>القص الكلّي المطلوب Δ<sub>total</sub> (بين القطعتين من الأعلى):</div>
-          <div class="text-right text-amber-300"><b>${deltaTotal.toFixed(1)} mm</b></div>
+          <div>Δ<sub>total</sub> (القص الكلّي بين القطعتين من الأعلى):</div>
+          <div class="text-right text-amber-300"><b>${deltaTotal.toFixed(2)} mm</b></div>
 
-          <div>القص على كل قطعة Δ لكل جناح:</div>
-          <div class="text-right text-emerald-300"><b>${deltaEach.toFixed(1)} mm</b></div>
+          <div>Δ لكل قطعة (القص من الجناح لكل قطعة):</div>
+          <div class="text-right text-emerald-300"><b>${deltaEach.toFixed(2)} mm</b></div>
 
           <div>وزن المتر الواحد من الجدول:</div>
           <div class="text-right"><b>${kgpmText}</b></div>
@@ -306,15 +354,14 @@
           <div class="text-right"><b>${weightTxt}</b></div>
         </div>
         <div class="text-[10px] text-slate-400 mt-2">
-          في الواقع العملي: لكل قطعة، علّم نقطة على سطح الجناح من طرفه تبعد
-          <b>${deltaEach.toFixed(1)} mm</b> على طول الجناح (Top View)، ثم أوصل هذه النقطة مع الطرف الآخر للجناح
-          بخط مستقيم — هذا هو خط القص الحقيقي. في الواجهة الأمامية يظهر هذا القطع كخط عمودي قصير كما في الرسم.
+          مثال معايرة: لو اخترت HEM 260 و θ = 30°، ستحصل على Δ لكل قطعة ≈ <b>72.03 mm</b> كما في المخطط،
+          والخط الأحمر في الرسم يتحرك نحو الوسط بما يتناسب مع هذه القيمة.
         </div>
       `;
     }
 
     // رسم وجه أمامي احترافي لمقطع H مع خط قص عمودي على الجناح العلوي
-    function renderFront({b, sz, s, angDeg}) {
+    function renderFront({b, sz, s, angDeg, deltaEach}) {
       const widthPx  = 320;
       const heightPx = 260;
       const paddingY = 30;
@@ -339,8 +386,14 @@
       const flangeLeftInner  = midX - halfFlangeSpan;
       const flangeRightInner = midX + halfFlangeSpan;
 
-      // موضع خط القص الرأسي (قريب من نهاية الجناح اليمنى)
-      const cutX = flangeRightInner - 4;
+      const flangeWidthPx = flangeRightInner - flangeLeftInner;
+
+      // نسبة القص من عرض الجناح (نستخدمها لتحريك الخط نحو الوسط)
+      let fraction = deltaEach / b;      // لو Δ = b/2 تكون 0.5 تقريباً
+      fraction = Math.max(0, Math.min(0.5, fraction)); // لا نتجاوز منتصف الجناح
+
+      const offsetPx = fraction * flangeWidthPx;
+      const cutX = flangeRightInner - offsetPx;
 
       const svg = `
         <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}">
@@ -363,13 +416,13 @@
           <g filter="url(#shadow)">
             <!-- الجناح العلوي -->
             <rect x="${flangeLeftInner}" y="${topFlangeY}"
-                  width="${(flangeRightInner - flangeLeftInner)}"
+                  width="${flangeWidthPx}"
                   height="${flangeTh}"
                   fill="url(#metalGrad)" stroke="#94a3b8" stroke-width="1" />
 
             <!-- الجناح السفلي -->
             <rect x="${flangeLeftInner}" y="${botFlangeY - flangeTh}"
-                  width="${(flangeRightInner - flangeLeftInner)}"
+                  width="${flangeWidthPx}"
                   height="${flangeTh}"
                   fill="url(#metalGrad)" stroke="#94a3b8" stroke-width="1" />
 
@@ -380,7 +433,7 @@
                   fill="url(#webGrad)" stroke="#94a3b8" stroke-width="1" />
           </g>
 
-          <!-- خط القص العمودي على الجناح العلوي (يمثل مكان نهاية الجناح بعد القص من الأعلى) -->
+          <!-- خط القص العمودي على الجناح العلوي (يتحرك حسب Δ لكل قطعة) -->
           <line x1="${cutX}" y1="${topFlangeY}"
                 x2="${cutX}" y2="${topFlangeY + flangeTh}"
                 stroke="#f97373" stroke-width="4" stroke-linecap="round" />
@@ -398,7 +451,7 @@
           </text>
 
           <text x="${midX}" y="${botFlangeY + 34}" font-size="10" fill="#cbd5f5" text-anchor="middle">
-            خط القص الأحمر يمثل مكان الفتحة في الجناح العلوي في هذا المنظر الأمامي
+            موضع الخط الأحمر يرمز لكمية القص من الجناح في هذا المنظر الأمامي
           </text>
         </svg>
       `;
@@ -406,8 +459,14 @@
     }
 
     // أحداث
-    [$series, $size, $angle, $length].forEach(el => {
+    [$series, $size, $length].forEach(el => {
       el.addEventListener('input', calc);
+    });
+
+    $angle.addEventListener('input', calc);
+    $angleRange.addEventListener('input', () => {
+      $angle.value = $angleRange.value;
+      calc();
     });
 
     $btnReset.addEventListener('click', () => {
@@ -415,6 +474,7 @@
       populateSizes();
       $size.value = '180';
       $angle.value = 30;
+      $angleRange.value = 30;
       $length.value = 5000;
       calc();
     });
